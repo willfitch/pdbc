@@ -29,6 +29,8 @@
 #include "php_ini.h"
 #include "zend_exceptions.h"
 #include "ext/spl/spl_exceptions.h"
+#include <ext/spl/spl_iterators.h>
+#include "zend_interfaces.h"
 #include "ext/standard/info.h"
 
 extern zend_module_entry pdbc_module_entry;
@@ -55,7 +57,7 @@ extern zend_module_entry pdbc_module_entry;
 	PHP_ME(pdbc_ ## class_name, method, arginfo, attrs)
 
 #define PDBC_METHOD(class_name, method) \
-	static PHP_METHOD(pdbc_ ## class_name, method)
+	PHP_METHOD(pdbc_ ## class_name, method)
 
 
 #define CLASS_NAME_DRIVER "php\\sql\\Driver"

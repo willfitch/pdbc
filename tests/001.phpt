@@ -10,7 +10,6 @@ var_dump(interface_exists('php\sql\Driver'));
 var_dump(interface_exists('php\sql\Connection'));
 var_dump(interface_exists('php\sql\ResultSet'));
 var_dump(interface_exists('php\sql\DatabaseMetaData'));
-
 ?>
 --EXPECT--
 bool(true)

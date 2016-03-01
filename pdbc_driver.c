@@ -23,18 +23,6 @@ const zend_function_entry pdbc_driver_methods[] = {
 	PHP_FE_END
 };
 
-static zend_object *pdbc_driver_create_object(zend_class_entry *ce)
-{
-	pdbc_driver_object_t *driver;
-	driver = ecalloc(1, sizeof(pdbc_driver_object_t) + zend_object_properties_size(ce));
-
-	zend_object_std_init(&driver->zo, ce);
-	object_properties_init(&driver->zo, ce);
-
-	driver->zo.handlers = &pdbc_Driver_handlers;
-	return &driver->zo;
-}
-
 void pdbc_define_Driver(TSRMLS_D)
 {
 	zend_class_entry ce;
