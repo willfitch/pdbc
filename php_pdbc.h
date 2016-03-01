@@ -21,6 +21,16 @@
 #ifndef PHP_PDBC_H
 #define PHP_PDBC_H
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "php.h"
+#include "php_ini.h"
+#include "zend_exceptions.h"
+#include "ext/spl/spl_exceptions.h"
+#include "ext/standard/info.h"
+
 extern zend_module_entry pdbc_module_entry;
 #define phpext_pdbc_ptr &pdbc_module_entry
 
@@ -41,7 +51,24 @@ extern zend_module_entry pdbc_module_entry;
 #define PDBC_ABSTRACT_ME(class_name, method, arginfo) \
 	ZEND_ABSTRACT_ME(pdbc_ ## class_name, method, arginfo)
 
+#define PDBC_ME(class_name, method, arginfo, attrs) \
+	PHP_ME(pdbc_ ## class_name, method, arginfo, attrs)
+
+#define PDBC_METHOD(class_name, method) \
+	static PHP_METHOD(pdbc_ ## class_name, method)
+
+
+#define CLASS_NAME_DRIVER "php\\sql\\Driver"
+#define CLASS_NAME_CONNECTION "php\\sql\\Connection"
+#define CLASS_NAME_DATABASEMETADATA "php\\sql\\DatabaseMetaData"
+
 #include "pdbc_types.h"
+
+PHP_MINIT_FUNCTION(pdbc);
+PHP_MSHUTDOWN_FUNCTION(pdbc);
+PHP_RINIT_FUNCTION(pdbc);
+PHP_RSHUTDOWN_FUNCTION(pdbc);
+PHP_MINFO_FUNCTION(pdbc);
 
 /*
   	Declare any global variables you may need between the BEGIN

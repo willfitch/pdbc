@@ -7,7 +7,13 @@ Check for pdbc presence
 
 // Check class/interface entries
 var_dump(interface_exists('php\sql\Driver'));
+var_dump(interface_exists('php\sql\Connection'));
+var_dump(interface_exists('php\sql\ResultSet'));
+var_dump(interface_exists('php\sql\DatabaseMetaData'));
 
 ?>
 --EXPECT--
+bool(true)
+bool(true)
+bool(true)
 bool(true)

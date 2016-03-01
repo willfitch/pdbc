@@ -59,6 +59,8 @@ if test "$PHP_PDBC" != "no"; then
 
   PDBC_CLASSES="\
     pdbc_driver.c \
+    pdbc_db_metadata.c \
+    pdbc_resultset.c \
     pdbc_connection.c \
   ";
 
