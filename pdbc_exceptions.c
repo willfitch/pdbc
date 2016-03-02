@@ -15,7 +15,6 @@ void pdbc_define_Exceptions(TSRMLS_D)
 
 	INIT_CLASS_ENTRY(ce, CLASS_NAME_SQL_EXCEPTION, NULL);
 	pdbc_SqlException_ce = zend_register_internal_class_ex(&ce, zend_ce_exception);
-
 	
 	INIT_CLASS_ENTRY(ce, CLASS_NAME_SQL_FEATURE_EXCEPTION, NULL);
 	pdbc_SqlFeatureNotSupportedException_ce = zend_register_internal_class_ex(&ce, pdbc_SqlException_ce);
