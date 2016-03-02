@@ -59,10 +59,11 @@ extern zend_module_entry pdbc_module_entry;
 #define PDBC_METHOD(class_name, method) \
 	PHP_METHOD(pdbc_ ## class_name, method)
 
+#define REGISTER_PDBC_CLASS_CONST_LONG(ce, const_name, value) \
+	zend_declare_class_constant_long(ce, const_name, sizeof(const_name) - 1, (zend_long) value);
 
-#define CLASS_NAME_DRIVER "php\\sql\\Driver"
-#define CLASS_NAME_CONNECTION "php\\sql\\Connection"
-#define CLASS_NAME_DATABASEMETADATA "php\\sql\\DatabaseMetaData"
+#define REGISTER_PDBC_CLASS_CONST_STRING(ce, const_name, value) \
+	zend_declare_class_constant_stringl(ce, const_name, sizeof(const_name) - 1, value, sizeof(value) - 1);
 
 #include "pdbc_types.h"
 

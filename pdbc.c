@@ -28,6 +28,11 @@ ZEND_DECLARE_MODULE_GLOBALS(pdbc)
 /* True global resources - no need for thread safety here */
 static int le_pdbc;
 
+zend_class_entry *pdbc_driver_manager_ce = NULL;
+static zend_object_handlers pdbc_driver_manager_handlers;
+
+zend_class_entry *pdbc_types_ce = NULL;
+
 /* {{{ PHP_INI
  */
 /* Remove comments and fill if you need to have entries in php.ini
@@ -56,6 +61,70 @@ static void php_pdbc_init_globals(zend_pdbc_globals *pdbc_globals)
 */
 /* }}} */
 
+
+zend_class_entry *pdbc_DriverManager_ce = NULL;
+zend_object_handlers pdbc_DriverManager_handlers;
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_DriverManager_void, 0, 0, 0)
+ZEND_END_ARG_INFO();
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_DriverManager_getConnection, 0, 0, 1)
+	ZEND_ARG_INFO(0, url)
+	ZEND_ARG_INFO(0, user)
+	ZEND_ARG_INFO(0, password)
+ZEND_END_ARG_INFO();
+
+
+PDBC_METHOD(DriverManager, __construct)
+{
+	RETURN_FALSE;
+}
+
+PDBC_METHOD(DriverManager, getConnection)
+{
+	RETURN_FALSE;
+}
+
+/* {{{ pdbc_driver_manager_methods
+ */
+const zend_function_entry pdbc_driver_manager_methods[] = {
+	PDBC_ME(DriverManager, __construct, arginfo_pdbc_DriverManager_void, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
+	PDBC_ME(DriverManager, getConnection, arginfo_pdbc_DriverManager_getConnection, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+	PHP_FE_END
+};
+/* }}} */
+
+/* {{{ pdbc_driver_manager_create_object
+ */
+static zend_object *pdbc_driver_manager_create_object(zend_class_entry *ce)
+{
+	pdbc_driver_manager_t *intern;
+	intern = ecalloc(1, sizeof(pdbc_driver_manager_t) + zend_object_properties_size(ce));
+
+	zend_object_std_init(&intern->zo, ce);
+	object_properties_init(&intern->zo, ce);
+
+	intern->zo.handlers = &pdbc_driver_manager_handlers;
+	return &intern->zo;
+}
+/* }}} */
+
+/* {{{ pdbc_driver_manager_free_object
+ */
+static void pdbc_driver_manager_free_object(zend_object *obj)
+{
+	zend_object_std_dtor(obj);
+}
+/* }}} */
+
+/* {{{ pdbc_driver_manager_destroy_object
+ */
+static void pdbc_driver_manager_destroy_object(zend_object *obj)
+{
+	zend_objects_destroy_object(obj);
+}
+/* }}} */
+
 /* {{{ PHP_MINIT_FUNCTION
  */
 PHP_MINIT_FUNCTION(pdbc)
@@ -63,6 +132,8 @@ PHP_MINIT_FUNCTION(pdbc)
 	/* If you have INI entries, uncomment these lines
 	REGISTER_INI_ENTRIES();
 	*/
+
+	zend_class_entry ce;
 
 	/* Call the individual class inits
 	 */
@@ -72,6 +143,44 @@ PHP_MINIT_FUNCTION(pdbc)
 	pdbc_define_DatabaseMetaData(TSRMLS_C);
 	pdbc_define_Exceptions(TSRMLS_C);
 	pdbc_define_Statement(TSRMLS_C);
+
+	/* Register DriverManager
+	 */
+	INIT_CLASS_ENTRY(ce, CLASS_NAME_DRIVER_MANAGER, pdbc_driver_manager_methods);
+
+	pdbc_driver_manager_ce = zend_register_internal_class(&ce);
+	pdbc_driver_manager_ce->create_object = pdbc_driver_manager_create_object;
+
+	memcpy(&pdbc_driver_manager_handlers, zend_get_std_object_handlers(), sizeof(pdbc_driver_manager_handlers));
+	pdbc_driver_manager_handlers.free_obj = pdbc_driver_manager_free_object;
+	pdbc_driver_manager_handlers.dtor_obj = pdbc_driver_manager_destroy_object;
+	pdbc_driver_manager_handlers.offset = XtOffsetOf(pdbc_driver_manager_t, zo);
+
+	/* Register Types
+	 */
+	INIT_CLASS_ENTRY(ce, CLASS_NAME_TYPES, NULL);
+	pdbc_types_ce = zend_register_internal_class(&ce);
+
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "ARRAY", PDBC_TYPE_ARRAY);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "BIGINT", PDBC_TYPE_BIGINT);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "BINARY", PDBC_TYPE_BINARY);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "BIT", PDBC_TYPE_BIT);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "BLOB", PDBC_TYPE_BLOB);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "BOOLEAN", PDBC_TYPE_BOOLEAN);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "CHAR", PDBC_TYPE_CHAR);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "DATE", PDBC_TYPE_DATE);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "DECIMAL", PDBC_TYPE_DECIMAL);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "DOUBLE", PDBC_TYPE_DOUBLE);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "FLOAT", PDBC_TYPE_FLOAT);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "INTEGER", PDBC_TYPE_INTEGER);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "NULL", PDBC_TYPE_NULL);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "REAL", PDBC_TYPE_REAL);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "TIME", PDBC_TYPE_TIME);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "TIMESTAMP", PDBC_TYPE_TIMESTAMP);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "TINYINT", PDBC_TYPE_TINYINT);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "VARBINARY", PDBC_TYPE_VARBINARY);
+	REGISTER_PDBC_CLASS_CONST_LONG(pdbc_types_ce, "VARCHAR", PDBC_TYPE_VARCHAR);
+
 	return SUCCESS;
 }
 /* }}} */
