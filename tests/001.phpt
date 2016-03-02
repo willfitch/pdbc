@@ -6,19 +6,19 @@ Check for pdbc presence
 <?php
 
 // Check class/interface entries
-var_dump(interface_exists('php\sql\Driver'));
-var_dump(interface_exists('php\sql\Connection'));
-var_dump(interface_exists('php\sql\ResultSet'));
-var_dump(interface_exists('php\sql\DatabaseMetaData'));
-var_dump(interface_exists('php\sql\Statement'));
+var_dump(interface_exists('php\pdbc\Driver'));
+var_dump(interface_exists('php\pdbc\Connection'));
+var_dump(interface_exists('php\pdbc\ResultSet'));
+var_dump(interface_exists('php\pdbc\DatabaseMetaData'));
+var_dump(interface_exists('php\pdbc\Statement'));
 
-var_dump(class_exists('php\sql\DriverManager'));
+var_dump(class_exists('php\pdbc\DriverManager'));
 
-var_dump(class_exists('php\sql\SqlException'));
-var_dump(class_exists('php\sql\SqlFeatureNotSupportedException'));
-var_dump(class_exists('php\sql\SqlSyntaxErrorException'));
-var_dump(class_exists('php\sql\SqlTimeoutException'));
-var_dump(class_exists('php\sql\SqlAuthorizationException'));
+var_dump(class_exists('php\pdbc\SqlException'));
+var_dump(class_exists('php\pdbc\SqlFeatureNotSupportedException'));
+var_dump(class_exists('php\pdbc\SqlSyntaxErrorException'));
+var_dump(class_exists('php\pdbc\SqlTimeoutException'));
+var_dump(class_exists('php\pdbc\SqlAuthorizationException'));
 ?>
 --EXPECT--
 bool(true)

@@ -28,8 +28,7 @@
 #include "php.h"
 #include "php_ini.h"
 #include "zend_exceptions.h"
-#include "ext/spl/spl_exceptions.h"
-#include <ext/spl/spl_iterators.h>
+#include "ext/spl/spl_iterators.h"
 #include "zend_interfaces.h"
 #include "ext/standard/info.h"
 
@@ -66,6 +65,7 @@ extern zend_module_entry pdbc_module_entry;
 	zend_declare_class_constant_stringl(ce, const_name, sizeof(const_name) - 1, value, sizeof(value) - 1);
 
 #include "pdbc_types.h"
+#include "pdbc_exceptions.h"
 
 PHP_MINIT_FUNCTION(pdbc);
 PHP_MSHUTDOWN_FUNCTION(pdbc);

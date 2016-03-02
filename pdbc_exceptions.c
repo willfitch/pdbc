@@ -28,3 +28,4 @@ void pdbc_define_Exceptions(TSRMLS_D)
 	INIT_CLASS_ENTRY(ce, CLASS_NAME_SQL_AUTH_EXCEPTION, NULL);
 	pdbc_SqlAuthorizationException_ce = zend_register_internal_class_ex(&ce, pdbc_SqlException_ce);
 }
+

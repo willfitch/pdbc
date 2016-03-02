@@ -12,7 +12,7 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Author:                                                              |
+  | Author: Will Fitch <willfitch@php.net>                               |
   +----------------------------------------------------------------------+
 */
 
@@ -32,6 +32,8 @@ zend_class_entry *pdbc_driver_manager_ce = NULL;
 static zend_object_handlers pdbc_driver_manager_handlers;
 
 zend_class_entry *pdbc_types_ce = NULL;
+
+HashTable drivers;
 
 /* {{{ PHP_INI
  */
@@ -74,28 +76,65 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_DriverManager_getConnection, 0, 0, 1)
 	ZEND_ARG_INFO(0, password)
 ZEND_END_ARG_INFO();
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_DriverManager_getDriver, 0, 0, 1)
+	ZEND_ARG_INFO(0, url)
+ZEND_END_ARG_INFO();
+
 
 PDBC_METHOD(DriverManager, __construct)
 {
-	RETURN_FALSE;
 }
 
+/* {{{ proto Connection DriverManager::getConnection(string url[, string user[, string password]])
+ */
 PDBC_METHOD(DriverManager, getConnection)
 {
 	RETURN_FALSE;
 }
+/* }}} */
 
-/* {{{ pdbc_driver_manager_methods
+/* {{{ proto Driver DriverManager::getDriver(string url)
  */
+PDBC_METHOD(DriverManager, getDriver)
+{
+	RETURN_FALSE;
+}
+/* }}} */
+
+/* {{{ proto array DriverManager::getDrivers(void)
+ */
+PDBC_METHOD(DriverManager, getDrivers)
+{
+	zend_string *key;
+	array_init(return_value);
+	
+	ZEND_HASH_FOREACH_STR_KEY(&drivers, key) {
+		if (key) {
+			add_next_index_string(return_value, key->val);
+		}
+	} ZEND_HASH_FOREACH_END();
+}
+/* }}} */
+
+
+PHP_PDBC_API int pdbc_register_driver(pdbc_driver_t *driver)
+{
+	return zend_hash_str_add_ptr(&drivers, driver->name->val, driver->name->len, driver) != NULL;
+}
+
+PHP_PDBC_API void pdbc_deregister_driver(pdbc_driver_t *driver)
+{
+	zend_hash_str_del(&drivers, driver->name->val, driver->name->len);
+}
+
 const zend_function_entry pdbc_driver_manager_methods[] = {
 	PDBC_ME(DriverManager, __construct, arginfo_pdbc_DriverManager_void, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
 	PDBC_ME(DriverManager, getConnection, arginfo_pdbc_DriverManager_getConnection, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+	PDBC_ME(DriverManager, getDriver, arginfo_pdbc_DriverManager_getDriver, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+	PDBC_ME(DriverManager, getDrivers, arginfo_pdbc_DriverManager_void, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 	PHP_FE_END
 };
-/* }}} */
 
-/* {{{ pdbc_driver_manager_create_object
- */
 static zend_object *pdbc_driver_manager_create_object(zend_class_entry *ce)
 {
 	pdbc_driver_manager_t *intern;
@@ -107,23 +146,16 @@ static zend_object *pdbc_driver_manager_create_object(zend_class_entry *ce)
 	intern->zo.handlers = &pdbc_driver_manager_handlers;
 	return &intern->zo;
 }
-/* }}} */
 
-/* {{{ pdbc_driver_manager_free_object
- */
 static void pdbc_driver_manager_free_object(zend_object *obj)
 {
 	zend_object_std_dtor(obj);
 }
-/* }}} */
 
-/* {{{ pdbc_driver_manager_destroy_object
- */
 static void pdbc_driver_manager_destroy_object(zend_object *obj)
 {
 	zend_objects_destroy_object(obj);
 }
-/* }}} */
 
 /* {{{ PHP_MINIT_FUNCTION
  */
@@ -134,6 +166,8 @@ PHP_MINIT_FUNCTION(pdbc)
 	*/
 
 	zend_class_entry ce;
+
+	zend_hash_init(&drivers, 0, NULL, NULL, 1);
 
 	/* Call the individual class inits
 	 */
@@ -189,6 +223,8 @@ PHP_MINIT_FUNCTION(pdbc)
  */
 PHP_MSHUTDOWN_FUNCTION(pdbc)
 {
+	zend_hash_destroy(&drivers);
+
 	/* uncomment this line if you have INI entries
 	UNREGISTER_INI_ENTRIES();
 	*/
