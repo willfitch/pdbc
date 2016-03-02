@@ -61,6 +61,7 @@ if test "$PHP_PDBC" != "no"; then
     pdbc_driver.c \
     pdbc_db_metadata.c \
     pdbc_resultset.c \
+    pdbc_stmt.c \
     pdbc_exceptions.c \
     pdbc_connection.c \
   ";

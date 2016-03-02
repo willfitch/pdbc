@@ -71,6 +71,7 @@ PHP_MINIT_FUNCTION(pdbc)
 	pdbc_define_ResultSet(TSRMLS_C);
 	pdbc_define_DatabaseMetaData(TSRMLS_C);
 	pdbc_define_Exceptions(TSRMLS_C);
+	pdbc_define_Statement(TSRMLS_C);
 	return SUCCESS;
 }
 /* }}} */

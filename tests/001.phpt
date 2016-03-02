@@ -10,6 +10,7 @@ var_dump(interface_exists('php\sql\Driver'));
 var_dump(interface_exists('php\sql\Connection'));
 var_dump(interface_exists('php\sql\ResultSet'));
 var_dump(interface_exists('php\sql\DatabaseMetaData'));
+var_dump(interface_exists('php\sql\Statement'));
 
 var_dump(class_exists('php\sql\SqlException'));
 var_dump(class_exists('php\sql\SqlFeatureNotSupportedException'));
@@ -18,6 +19,7 @@ var_dump(class_exists('php\sql\SqlTimeoutException'));
 var_dump(class_exists('php\sql\SqlAuthorizationException'));
 ?>
 --EXPECT--
+bool(true)
 bool(true)
 bool(true)
 bool(true)
