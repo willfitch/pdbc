@@ -29,4 +29,5 @@ if test "$PHP_PDBC" != "no"; then
   PDBC_CFLAGS="-Wall -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1"
 
   PHP_NEW_EXTENSION(pdbc, pdbc.c $PDBC_CLASSES, $ext_shared,, $PDBC_CFLAGS)
+  PHP_INSTALL_HEADERS(ext/pdbc, [php_pdbc.h pdbc_types.h pdbc_exceptions.h])
 fi
