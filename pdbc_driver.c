@@ -16,6 +16,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_Driver_connect, 0, 0, 1)
 ZEND_END_ARG_INFO();
 
 const zend_function_entry pdbc_driver_methods[] = {
+	PDBC_ABSTRACT_ME(Driver, __construct,		arginfo_pdbc_Driver_void)
 	PDBC_ABSTRACT_ME(Driver, acceptsUrl,		arginfo_pdbc_Driver_acceptsUrl)
 	PDBC_ABSTRACT_ME(Driver, connect,			arginfo_pdbc_Driver_connect)
 	PDBC_ABSTRACT_ME(Driver, getMajorVersion,	arginfo_pdbc_Driver_void)

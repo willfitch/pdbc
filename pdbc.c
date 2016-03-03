@@ -29,7 +29,7 @@ static PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url);
 static PHP_PDBC_API void pdbc_free_url(pdbc_conn_info_t *conn);
 
 /* True global resources - no need for thread safety here */
-static int le_pdbc;
+/*static int le_pdbc;*/
 
 zend_class_entry *pdbc_driver_manager_ce = NULL;
 static zend_object_handlers pdbc_driver_manager_handlers;
@@ -73,7 +73,7 @@ zend_object_handlers pdbc_DriverManager_handlers;
 ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_DriverManager_void, 0, 0, 0)
 ZEND_END_ARG_INFO();
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_DriverManager_getConnection, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_DriverManager_getConnection, 0, 0, 0)
 	ZEND_ARG_INFO(0, url)
 	ZEND_ARG_INFO(0, user)
 	ZEND_ARG_INFO(0, password)
@@ -98,13 +98,15 @@ PDBC_METHOD(DriverManager, getConnection)
 	zend_string *password;
 	pdbc_conn_info_t *conn;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &url) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S|SS", &url, &user, &password) == FAILURE) {
 		return;
 	}
 
 	if ((conn = pdbc_parse_url(url)) == NULL) {
 		return;
 	}
+
+	pdbc_free_url(conn);
 
 	RETURN_FALSE;
 }
@@ -116,7 +118,6 @@ PDBC_METHOD(DriverManager, getDriver)
 {
 	zend_string *str;
 	pdbc_driver_t *tmp;
-	pdbc_conn_info_t *conn;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &str) == FAILURE) {
 		return;
@@ -126,7 +127,7 @@ PDBC_METHOD(DriverManager, getDriver)
 		RETURN_NULL();
 	}
 
-	ZVAL_OBJ(return_value, *tmp->driver_obj);
+	ZVAL_OBJ(return_value, tmp->get_driver_instance());
 }
 /* }}} */
 
