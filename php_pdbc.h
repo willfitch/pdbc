@@ -31,6 +31,7 @@
 #include "ext/spl/spl_iterators.h"
 #include "zend_interfaces.h"
 #include "ext/standard/info.h"
+#include <ctype.h>
 
 extern zend_module_entry pdbc_module_entry;
 #define phpext_pdbc_ptr &pdbc_module_entry

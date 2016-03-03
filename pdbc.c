@@ -25,6 +25,9 @@
 ZEND_DECLARE_MODULE_GLOBALS(pdbc)
 */
 
+static PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url);
+static PHP_PDBC_API void pdbc_free_url(pdbc_conn_info_t *conn);
+
 /* True global resources - no need for thread safety here */
 static int le_pdbc;
 
@@ -80,7 +83,8 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_DriverManager_getDriver, 0, 0, 1)
 	ZEND_ARG_INFO(0, url)
 ZEND_END_ARG_INFO();
 
-
+/* Purposely defined as private
+ */
 PDBC_METHOD(DriverManager, __construct)
 {
 }
@@ -89,6 +93,19 @@ PDBC_METHOD(DriverManager, __construct)
  */
 PDBC_METHOD(DriverManager, getConnection)
 {
+	zend_string *url;
+	zend_string *user;
+	zend_string *password;
+	pdbc_conn_info_t *conn;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &url) == FAILURE) {
+		return;
+	}
+
+	if ((conn = pdbc_parse_url(url)) == NULL) {
+		return;
+	}
+
 	RETURN_FALSE;
 }
 /* }}} */
@@ -97,7 +114,19 @@ PDBC_METHOD(DriverManager, getConnection)
  */
 PDBC_METHOD(DriverManager, getDriver)
 {
-	RETURN_FALSE;
+	zend_string *str;
+	pdbc_driver_t *tmp;
+	pdbc_conn_info_t *conn;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &str) == FAILURE) {
+		return;
+	}
+
+	if ((tmp = zend_hash_find_ptr(&drivers, str)) == NULL) {
+		RETURN_NULL();
+	}
+
+	ZVAL_OBJ(return_value, *tmp->driver_obj);
 }
 /* }}} */
 
@@ -107,7 +136,7 @@ PDBC_METHOD(DriverManager, getDrivers)
 {
 	zend_string *key;
 	array_init(return_value);
-	
+
 	ZEND_HASH_FOREACH_STR_KEY(&drivers, key) {
 		if (key) {
 			add_next_index_string(return_value, key->val);
@@ -116,6 +145,181 @@ PDBC_METHOD(DriverManager, getDrivers)
 }
 /* }}} */
 
+static PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url)
+{
+	pdbc_conn_info_t *conn;
+	char *colon;
+	char *urlval = url->val;
+	int increment = 0;
+	char tmp[1024];
+
+	if (!url || url->len < 1) {
+		return NULL;
+	}
+
+	conn = (pdbc_conn_info_t *) emalloc(sizeof(pdbc_conn_info_t));
+	conn->driver = conn->host = conn->database = conn->user = conn->password = NULL;
+
+	colon = strchr(url->val, ':');
+
+	if (!colon) {
+		pdbc_free_url(conn);
+		return NULL;
+	}
+
+	increment = colon - url->val;
+	strncpy(tmp, url->val, increment);
+
+	/* Parse the driver
+	 */
+
+	if (!zend_hash_str_exists(&drivers, tmp, sizeof(tmp) - 1)) {
+		/*
+		throw_new_SqlException("Unknown or invalid driver supplied", 0);
+		pdbc_free_url(conn);
+		return NULL;*/
+	}
+
+	conn->driver = zend_string_init(tmp, sizeof(tmp) - 1, 0);
+	memset(tmp, 0, sizeof(tmp));
+
+	urlval = url->val + increment;
+
+	if (*colon == ':') {
+		/* We have a username
+		 */
+		urlval++;
+		colon = strchr(urlval, '/');
+		increment += (colon - urlval) + 1;
+		strncpy(tmp, urlval, (colon - urlval));
+
+		conn->user = zend_string_init(tmp, sizeof(tmp) - 1, 0);
+		memset(tmp, 0, sizeof(tmp));
+		urlval = url->val + increment;
+	}
+
+	if (!(*colon == '/')) {
+		throw_new_SqlException("Invalid URL format provided", 0);
+		pdbc_free_url(conn);
+		return NULL;
+	}
+
+	/* Continue parsing password/host
+	 */
+	if (*++colon != '/') {
+		/* Invalid format
+		 */
+		throw_new_SqlException("Invalid URL format provided", 0);
+		pdbc_free_url(conn);
+		return NULL;
+	}
+
+	colon++;
+	increment += 2;
+	urlval = url->val + increment;
+
+	if ((colon = strchr(urlval, '@'))) {
+		/* We have a password
+		 */
+		increment += (colon - urlval) + 1;
+		strncpy(tmp, urlval, (colon - urlval));
+
+		conn->password = zend_string_init(tmp, sizeof(tmp) - 1, 0);
+		memset(tmp, 0, sizeof(tmp));
+	}
+
+	if (!(colon = strchr(urlval, ':')) && !(colon = strchr(urlval, '/'))) {
+		throw_new_SqlException("No hostname provided in URL", 0);
+		pdbc_free_url(conn);
+		return NULL;
+	}
+
+	urlval = url->val + increment;
+	strncpy(tmp, urlval, (colon - urlval));
+
+	if (tmp[0] < 48) {
+		throw_new_SqlException("Invalid hostname provided", 0);
+		pdbc_free_url(conn);
+		return NULL;
+	}
+
+	conn->host = zend_string_init(tmp, sizeof(tmp) - 1, 0);
+	memset(tmp, 0, sizeof(tmp));
+
+	if ((colon = strchr(urlval, ':'))) {
+		/* We have a port
+		 */
+		increment += (colon - urlval) + 1;
+		urlval = url->val + increment;
+
+		if (!(colon = strchr(colon, '/'))) {
+			pdbc_free_url(conn);
+			return NULL;
+		}
+
+		increment += (colon - urlval);
+		strncpy(tmp, urlval, (colon - urlval));
+
+		conn->port = (zend_long) atol(tmp);
+
+		if (conn->port < 1) {
+			throw_new_SqlException("Invalid port provided. Port must be > 0", 0);
+			pdbc_free_url(conn);
+			return NULL;
+		}
+
+		memset(tmp, 0, sizeof(tmp));
+		colon++;
+	}
+
+	if (!(colon = strchr(urlval, '/'))) {
+		pdbc_free_url(conn);
+		return NULL;
+	}
+
+
+	if (!urlval) {
+		pdbc_free_url(conn);
+		return NULL;
+	}
+
+	colon++;
+
+	if (!colon || ((int) *colon < 1)) {
+		pdbc_free_url(conn);
+		return NULL;
+	}
+
+	conn->database = zend_string_init(colon, sizeof(colon) - 1, 0);
+	return conn;
+}
+
+static PHP_PDBC_API void pdbc_free_url(pdbc_conn_info_t *conn)
+{
+	if (conn) {
+		if (conn->driver) {
+			zend_string_release(conn->driver);
+		}
+
+		if (conn->host) {
+			zend_string_release(conn->host);
+		}
+
+		if (conn->database) {
+			zend_string_release(conn->database);
+		}
+
+		if (conn->user) {
+			zend_string_release(conn->user);
+		}
+
+		if (conn->password) {
+			zend_string_release(conn->password);
+		}
+
+		efree(conn);
+	}
+}
 
 PHP_PDBC_API int pdbc_register_driver(pdbc_driver_t *driver)
 {
