@@ -53,6 +53,11 @@
 #define PDBC_TYPE_VARBINARY (1 << 15)
 #define PDBC_TYPE_VARCHAR (1 << 16)
 
+typedef struct _pdbc_driver_t pdbc_driver_t;
+
+
+
+
 typedef struct {
 	zend_string *driver;
 	zend_string *host;
@@ -62,21 +67,22 @@ typedef struct {
 	zend_long	port;
 } pdbc_conn_info_t;
 
-typedef zend_object *(*pdbc_driver_create_connection)(pdbc_conn_info_t *);
-typedef zend_object *(*pdbc_get_connection_instance)();
-typedef zend_object *(*pdbc_get_driver_instance)();
-
-typedef struct {
-	zend_string						*name;
-
-	pdbc_driver_create_connection	create_connection;
-	pdbc_get_driver_instance		get_driver_instance;
-} pdbc_driver_t;
-
 typedef struct {
 	pdbc_driver_t *driver;
 	pdbc_conn_info_t *conn;
 } pdbc_handle_t;
+
+typedef zend_object *(*pdbc_driver_create_connection)(pdbc_handle_t *);
+typedef zend_object *(*pdbc_get_connection_instance)();
+typedef zend_object *(*pdbc_get_driver_instance)();
+
+struct _pdbc_driver_t {
+	zend_string						*name;
+
+	pdbc_driver_create_connection	create_connection;
+	pdbc_get_driver_instance		get_driver_instance;
+};
+
 
 typedef struct {
 	zend_object zo;

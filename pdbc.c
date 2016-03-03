@@ -94,9 +94,11 @@ PDBC_METHOD(DriverManager, __construct)
 PDBC_METHOD(DriverManager, getConnection)
 {
 	zend_string *url;
-	zend_string *user;
-	zend_string *password;
-	pdbc_conn_info_t *conn;
+	zend_string *user = NULL;
+	zend_string *password = NULL;
+	pdbc_driver_t *driver = NULL;
+	pdbc_conn_info_t *conn = NULL;
+	pdbc_handle_t *handle = NULL;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S|SS", &url, &user, &password) == FAILURE) {
 		return;
@@ -106,9 +108,25 @@ PDBC_METHOD(DriverManager, getConnection)
 		return;
 	}
 
-	pdbc_free_url(conn);
+	if (user && user->len > 0) {
+		conn->user = zend_string_dup(user, 0);
+	}
 
-	RETURN_FALSE;
+	if (password && password->len > 0) {
+		conn->password = zend_string_dup(password, 0);
+	}
+
+	if ((driver = zend_hash_find_ptr(&drivers, conn->driver)) == NULL) {
+		throw_new_SqlException("INTERNAL ERROR: Unable to locate driver.", 0);
+		pdbc_free_url(conn);
+		return;
+	}
+	
+	handle = (pdbc_handle_t *) emalloc(sizeof(pdbc_handle_t));
+	handle->conn = conn;
+	handle->driver = driver;
+
+	ZVAL_OBJ(return_value, driver->create_connection(handle));
 }
 /* }}} */
 
