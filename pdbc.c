@@ -122,10 +122,7 @@ PDBC_METHOD(DriverManager, getConnection)
 		return;
 	}
 	
-	handle = (pdbc_handle_t *) emalloc(sizeof(pdbc_handle_t));
 	handle->conn = conn;
-	handle->driver = driver;
-
 	ZVAL_OBJ(return_value, driver->create_connection(handle));
 }
 /* }}} */
@@ -348,6 +345,11 @@ PHP_PDBC_API int pdbc_register_driver(pdbc_driver_t *driver)
 PHP_PDBC_API void pdbc_deregister_driver(pdbc_driver_t *driver)
 {
 	zend_hash_str_del(&drivers, driver->name->val, driver->name->len);
+}
+
+PHP_PDBC_API void pdbc_free_handle(pdbc_handle_t *handle) 
+{
+	pdbc_free_url(handle->conn);
 }
 
 const zend_function_entry pdbc_driver_manager_methods[] = {

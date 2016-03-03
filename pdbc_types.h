@@ -55,9 +55,6 @@
 
 typedef struct _pdbc_driver_t pdbc_driver_t;
 
-
-
-
 typedef struct {
 	zend_string *driver;
 	zend_string *host;
@@ -68,7 +65,6 @@ typedef struct {
 } pdbc_conn_info_t;
 
 typedef struct {
-	pdbc_driver_t *driver;
 	pdbc_conn_info_t *conn;
 } pdbc_handle_t;
 
@@ -96,21 +92,6 @@ extern PHP_PDBC_API zend_class_entry *pdbc_ResultSet_ce;
 extern PHP_PDBC_API zend_class_entry *pdbc_Statement_ce;
 extern PHP_PDBC_API zend_class_entry *pdbc_DriverManager_ce;
 extern PHP_PDBC_API zend_class_entry *pdbc_Types_ce;
-
-
-/* Individual class/interface module
- * registration.
- */
-PHP_PDBC_API void pdbc_define_Connection(TSRMLS_C);
-PHP_PDBC_API void pdbc_define_DatabaseMetaData(TSRMLS_C);
-PHP_PDBC_API void pdbc_define_Driver(TSRMLS_C);
-PHP_PDBC_API void pdbc_define_ResultSet(TSRMLS_C);
-PHP_PDBC_API void pdbc_define_Exceptions(TSRMLS_C);
-PHP_PDBC_API void pdbc_define_Statement(TSRMLS_C);
-
-/* Driver-specific functions
- */
-PHP_PDBC_API int pdbc_register_driver(pdbc_driver_t *driver);
 
 #endif
 

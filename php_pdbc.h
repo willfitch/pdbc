@@ -74,6 +74,24 @@ PHP_RINIT_FUNCTION(pdbc);
 PHP_RSHUTDOWN_FUNCTION(pdbc);
 PHP_MINFO_FUNCTION(pdbc);
 
+/* Individual class/interface module
+ * registration.
+ */
+PHP_PDBC_API void pdbc_define_Connection(TSRMLS_C);
+PHP_PDBC_API void pdbc_define_DatabaseMetaData(TSRMLS_C);
+PHP_PDBC_API void pdbc_define_Driver(TSRMLS_C);
+PHP_PDBC_API void pdbc_define_ResultSet(TSRMLS_C);
+PHP_PDBC_API void pdbc_define_Exceptions(TSRMLS_C);
+PHP_PDBC_API void pdbc_define_Statement(TSRMLS_C);
+
+/* Driver-specific functions
+ */
+PHP_PDBC_API int pdbc_register_driver(pdbc_driver_t *driver);
+
+/* Free up the handle provided to each connection
+ */
+PHP_PDBC_API void pdbc_free_handle(pdbc_handle_t *handle);
+
 /*
   	Declare any global variables you may need between the BEGIN
 	and END macros here:
