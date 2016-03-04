@@ -483,7 +483,8 @@ PHP_RSHUTDOWN_FUNCTION(pdbc)
 PHP_MINFO_FUNCTION(pdbc)
 {
 	php_info_print_table_start();
-	php_info_print_table_header(2, "pdbc support", "enabled");
+	php_info_print_table_header(2, "PDBC Support", "enabled");
+	php_info_print_table_row(2, "PDBC Version", PHP_PDBC_VERSION);
 	php_info_print_table_end();
 
 	/* Remove comments if you have entries in php.ini
