@@ -84,6 +84,8 @@ PHP_PDBC_API void pdbc_define_ResultSet(TSRMLS_C);
 PHP_PDBC_API void pdbc_define_Exceptions(TSRMLS_C);
 PHP_PDBC_API void pdbc_define_Statement(TSRMLS_C);
 
+PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url, char *error);
+PHP_PDBC_API void pdbc_free_url(pdbc_conn_info_t *conn);
 /* Driver-specific functions
  */
 PHP_PDBC_API int pdbc_register_driver(pdbc_driver_t *driver);

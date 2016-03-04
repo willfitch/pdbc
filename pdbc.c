@@ -25,9 +25,6 @@
 ZEND_DECLARE_MODULE_GLOBALS(pdbc)
 */
 
-static PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url);
-static PHP_PDBC_API void pdbc_free_url(pdbc_conn_info_t *conn);
-
 /* True global resources - no need for thread safety here */
 /*static int le_pdbc;*/
 
@@ -94,6 +91,7 @@ PDBC_METHOD(DriverManager, __construct)
 PDBC_METHOD(DriverManager, getConnection)
 {
 	zend_string *url;
+	char error[256];
 	zend_string *user = NULL;
 	zend_string *password = NULL;
 	pdbc_driver_t *driver = NULL;
@@ -104,7 +102,8 @@ PDBC_METHOD(DriverManager, getConnection)
 		return;
 	}
 
-	if ((conn = pdbc_parse_url(url)) == NULL) {
+	if ((conn = pdbc_parse_url(url, error)) == NULL) {
+		throw_new_SqlException(error, 0);
 		return;
 	}
 
@@ -161,13 +160,15 @@ PDBC_METHOD(DriverManager, getDrivers)
 }
 /* }}} */
 
-static PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url)
+PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url, char *error)
 {
 	pdbc_conn_info_t *conn;
 	char *colon;
 	char *urlval = url->val;
 	int increment = 0;
 	char tmp[1024];
+
+	memset(tmp, 0, sizeof(tmp));
 
 	if (!url || url->len < 1) {
 		return NULL;
@@ -179,6 +180,7 @@ static PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url)
 	colon = strchr(url->val, ':');
 
 	if (!colon) {
+		strcpy(error, "Invalid URL format provided");
 		pdbc_free_url(conn);
 		return NULL;
 	}
@@ -188,12 +190,10 @@ static PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url)
 
 	/* Parse the driver
 	 */
-
-	if (!zend_hash_str_exists(&drivers, tmp, sizeof(tmp) - 1)) {
-		/*
-		throw_new_SqlException("Unknown or invalid driver supplied", 0);
+	if (!zend_hash_str_exists(&drivers, tmp, strlen(tmp))) {
+		strcpy(error, "Unknown or invalid driver supplied");
 		pdbc_free_url(conn);
-		return NULL;*/
+		return NULL;
 	}
 
 	conn->driver = zend_string_init(tmp, sizeof(tmp) - 1, 0);
@@ -215,7 +215,7 @@ static PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url)
 	}
 
 	if (!(*colon == '/')) {
-		throw_new_SqlException("Invalid URL format provided", 0);
+		strcpy(error, "Unknown or invalid driver supplied");
 		pdbc_free_url(conn);
 		return NULL;
 	}
@@ -225,7 +225,7 @@ static PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url)
 	if (*++colon != '/') {
 		/* Invalid format
 		 */
-		throw_new_SqlException("Invalid URL format provided", 0);
+		strcpy(error, "Unknown or invalid driver supplied");
 		pdbc_free_url(conn);
 		return NULL;
 	}
@@ -245,7 +245,7 @@ static PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url)
 	}
 
 	if (!(colon = strchr(urlval, ':')) && !(colon = strchr(urlval, '/'))) {
-		throw_new_SqlException("No hostname provided in URL", 0);
+		strcpy(error, "No hostname provided in URL");
 		pdbc_free_url(conn);
 		return NULL;
 	}
@@ -254,7 +254,7 @@ static PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url)
 	strncpy(tmp, urlval, (colon - urlval));
 
 	if (tmp[0] < 48) {
-		throw_new_SqlException("Invalid hostname provided", 0);
+		strcpy(error, "Invalid hostname provided");
 		pdbc_free_url(conn);
 		return NULL;
 	}
@@ -279,7 +279,7 @@ static PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url)
 		conn->port = (zend_long) atol(tmp);
 
 		if (conn->port < 1) {
-			throw_new_SqlException("Invalid port provided. Port must be > 0", 0);
+			strcpy(error, "Invalid port provided. Port must be > 0");
 			pdbc_free_url(conn);
 			return NULL;
 		}
@@ -310,7 +310,7 @@ static PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url)
 	return conn;
 }
 
-static PHP_PDBC_API void pdbc_free_url(pdbc_conn_info_t *conn)
+PHP_PDBC_API void pdbc_free_url(pdbc_conn_info_t *conn)
 {
 	if (conn) {
 		if (conn->driver) {
