@@ -293,7 +293,6 @@ PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url, char *error)
 		return NULL;
 	}
 
-
 	if (!urlval) {
 		pdbc_free_url(conn);
 		return NULL;
