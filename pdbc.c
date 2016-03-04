@@ -64,9 +64,6 @@ static void php_pdbc_init_globals(zend_pdbc_globals *pdbc_globals)
 /* }}} */
 
 
-zend_class_entry *pdbc_DriverManager_ce = NULL;
-zend_object_handlers pdbc_DriverManager_handlers;
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_DriverManager_void, 0, 0, 0)
 ZEND_END_ARG_INFO();
 
@@ -395,12 +392,12 @@ PHP_MINIT_FUNCTION(pdbc)
 
 	/* Call the individual class inits
 	 */
-	pdbc_define_Driver(TSRMLS_C);
-	pdbc_define_Connection(TSRMLS_C);
-	pdbc_define_ResultSet(TSRMLS_C);
-	pdbc_define_DatabaseMetaData(TSRMLS_C);
-	pdbc_define_Exceptions(TSRMLS_C);
-	pdbc_define_Statement(TSRMLS_C);
+	pdbc_define_driver(TSRMLS_C);
+	pdbc_define_connection(TSRMLS_C);
+	pdbc_define_result_set(TSRMLS_C);
+	pdbc_define_database_meta_data(TSRMLS_C);
+	pdbc_define_exceptions(TSRMLS_C);
+	pdbc_define_statement(TSRMLS_C);
 
 	/* Register DriverManager
 	 */

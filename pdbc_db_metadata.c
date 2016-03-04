@@ -20,7 +20,7 @@
 
 #include "php_pdbc.h"
 
-zend_class_entry *pdbc_DatabaseMetaData_ce = NULL;
+zend_class_entry *pdbc_database_meta_data_ce = NULL;
 zend_object_handlers pdbc_dbmetadata_handlers;
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_DatabaseMetaData_void, 0, 0, 0)
@@ -51,16 +51,16 @@ const zend_function_entry pdbc_dbmetadata_methods[] = {
 	PHP_FE_END
 };
 
-void pdbc_define_DatabaseMetaData(TSRMLS_D)
+void pdbc_define_database_meta_data(TSRMLS_D)
 {
 	zend_class_entry ce;
 	INIT_CLASS_ENTRY(ce, CLASS_NAME_DATABASEMETADATA, pdbc_dbmetadata_methods);
-	pdbc_DatabaseMetaData_ce = zend_register_internal_interface(&ce);
+	pdbc_database_meta_data_ce = zend_register_internal_interface(&ce);
 	/*
 	zend_class_entry ce;
 
 	INIT_CLASS_ENTRY(ce, CLASS_NAME_DATABASEMETADATA, pdbc_dbmetadata_methods);
-	pdbc_DatabaseMetaData_ce = zend_register_internal_class(&ce);
+	pdbc_database_meta_data_ce = zend_register_internal_class(&ce);
 	pdbc_Connection_ce->create_object = pdbc_dbmetadata_create_object;
 	
 	memcpy(&pdbc_dbmetadata_handlers, zend_get_std_object_handlers(), sizeof(pdbc_dbmetadata_handlers));

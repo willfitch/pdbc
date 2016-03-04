@@ -21,7 +21,7 @@
 #include "zend_interfaces.h"
 #include "php_pdbc.h"
 
-zend_class_entry *pdbc_Connection_ce;
+zend_class_entry *pdbc_connection_ce;
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_Connection_void, 0, 0, 0)
 ZEND_END_ARG_INFO();
@@ -50,7 +50,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_Connection_setTransactionIsolation, 0, 0, 0)
 	ZEND_ARG_INFO(0, level)
 ZEND_END_ARG_INFO();
 
-const zend_function_entry pdbc_funcs_Connection[] = {
+const zend_function_entry pdbc_connection_methods[] = {
 	PDBC_ABSTRACT_ME(Connection, close,						arginfo_pdbc_Connection_void)
 	PDBC_ABSTRACT_ME(Connection, commit,					arginfo_pdbc_Connection_void)
 	PDBC_ABSTRACT_ME(Connection, createStatement,			arginfo_pdbc_Connection_void)
@@ -71,12 +71,12 @@ const zend_function_entry pdbc_funcs_Connection[] = {
 	PHP_FE_END
 };
 
-void pdbc_define_Connection(TSRMLS_D)
+void pdbc_define_connection(TSRMLS_D)
 {
 	zend_class_entry ce;
 
-	INIT_CLASS_ENTRY(ce, CLASS_NAME_CONNECTION, pdbc_funcs_Connection);
-	pdbc_Connection_ce = zend_register_internal_interface(&ce);
+	INIT_CLASS_ENTRY(ce, CLASS_NAME_CONNECTION, pdbc_connection_methods);
+	pdbc_connection_ce = zend_register_internal_interface(&ce);
 }
 
 /*

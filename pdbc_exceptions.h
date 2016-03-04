@@ -21,17 +21,17 @@
 
 #include "zend_exceptions.h"
 
-extern PHP_PDBC_API zend_class_entry *pdbc_SqlException_ce;
-extern PHP_PDBC_API zend_class_entry *pdbc_SqlFeatureNotSupportedException_ce;
-extern PHP_PDBC_API zend_class_entry *pdbc_SqlSyntaxErrorException_ce;
-extern PHP_PDBC_API zend_class_entry *pdbc_SqlTimeoutException_ce;
-extern PHP_PDBC_API zend_class_entry *pdbc_SqlAuthorizationException_ce;
+extern PHP_PDBC_API zend_class_entry *pdbc_sql_exception;
+extern PHP_PDBC_API zend_class_entry *pdbc_sql_feature_not_supported_exception_ce;
+extern PHP_PDBC_API zend_class_entry *pdbc_sql_syntax_error_exception_ce;
+extern PHP_PDBC_API zend_class_entry *pdbc_sql_timeout_exception_ce;
+extern PHP_PDBC_API zend_class_entry *pdbc_sql_authorization_exception_ce;
 
 /* {{{ void throw_new_SqlException
  */
 static inline void throw_new_SqlException(const char *message, zend_long code)
 {
-	zend_throw_exception(pdbc_SqlException_ce, message, code);
+	zend_throw_exception(pdbc_sql_exception, message, code);
 }
 /* }}} */
 
@@ -39,7 +39,7 @@ static inline void throw_new_SqlException(const char *message, zend_long code)
  */
 static inline void throw_new_FeatureException(const char *message, zend_long code)
 {
-	zend_throw_exception(pdbc_SqlFeatureNotSupportedException_ce, message, code);
+	zend_throw_exception(pdbc_sql_feature_not_supported_exception_ce, message, code);
 }
 /* }}} */
 
@@ -47,7 +47,7 @@ static inline void throw_new_FeatureException(const char *message, zend_long cod
  */
 static inline void throw_new_SyntaxException(const char *message, zend_long code)
 {
-	zend_throw_exception(pdbc_SqlSyntaxErrorException_ce, message, code);
+	zend_throw_exception(pdbc_sql_syntax_error_exception_ce, message, code);
 }
 /* }}} */
 
@@ -55,7 +55,7 @@ static inline void throw_new_SyntaxException(const char *message, zend_long code
  */
 static inline void throw_new_TimeoutException(const char *message, zend_long code)
 {
-	zend_throw_exception(pdbc_SqlTimeoutException_ce, message, code);
+	zend_throw_exception(pdbc_sql_timeout_exception_ce, message, code);
 }
 /* }}} */
 
@@ -63,7 +63,7 @@ static inline void throw_new_TimeoutException(const char *message, zend_long cod
  */
 static inline void throw_new_AuthException(const char *message, zend_long code)
 {
-	zend_throw_exception(pdbc_SqlAuthorizationException_ce, message, code);
+	zend_throw_exception(pdbc_sql_authorization_exception_ce, message, code);
 }
 /* }}} */
 

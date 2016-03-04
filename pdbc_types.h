@@ -87,13 +87,13 @@ typedef struct {
 } pdbc_driver_manager_t;
 
 
-extern PHP_PDBC_API zend_class_entry *pdbc_Connection_ce;
-extern PHP_PDBC_API zend_class_entry *pdbc_DatabaseMetaData_ce;
-extern PHP_PDBC_API zend_class_entry *pdbc_Driver_ce;
-extern PHP_PDBC_API zend_class_entry *pdbc_ResultSet_ce;
-extern PHP_PDBC_API zend_class_entry *pdbc_Statement_ce;
-extern PHP_PDBC_API zend_class_entry *pdbc_DriverManager_ce;
-extern PHP_PDBC_API zend_class_entry *pdbc_Types_ce;
+extern PHP_PDBC_API zend_class_entry *pdbc_connection_ce;
+extern PHP_PDBC_API zend_class_entry *pdbc_databasemetadata_ce;
+extern PHP_PDBC_API zend_class_entry *pdbc_driver_ce;
+extern PHP_PDBC_API zend_class_entry *pdbc_resultet_ce;
+extern PHP_PDBC_API zend_class_entry *pdbc_statement_ce;
+extern PHP_PDBC_API zend_class_entry *pdbc_drivermanager_ce;
+extern PHP_PDBC_API zend_class_entry *pdbc_types_ce;
 
 #endif
 

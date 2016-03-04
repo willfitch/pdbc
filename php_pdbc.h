@@ -77,12 +77,12 @@ PHP_MINFO_FUNCTION(pdbc);
 /* Individual class/interface module
  * registration.
  */
-PHP_PDBC_API void pdbc_define_Connection(TSRMLS_C);
-PHP_PDBC_API void pdbc_define_DatabaseMetaData(TSRMLS_C);
-PHP_PDBC_API void pdbc_define_Driver(TSRMLS_C);
-PHP_PDBC_API void pdbc_define_ResultSet(TSRMLS_C);
-PHP_PDBC_API void pdbc_define_Exceptions(TSRMLS_C);
-PHP_PDBC_API void pdbc_define_Statement(TSRMLS_C);
+PHP_PDBC_API void pdbc_define_connection(TSRMLS_C);
+PHP_PDBC_API void pdbc_define_database_meta_data(TSRMLS_C);
+PHP_PDBC_API void pdbc_define_driver(TSRMLS_C);
+PHP_PDBC_API void pdbc_define_result_set(TSRMLS_C);
+PHP_PDBC_API void pdbc_define_exceptions(TSRMLS_C);
+PHP_PDBC_API void pdbc_define_statement(TSRMLS_C);
 
 PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url, char *error);
 PHP_PDBC_API void pdbc_free_url(pdbc_conn_info_t *conn);

@@ -20,8 +20,8 @@
 
 #include "php_pdbc.h"
 
-zend_class_entry *pdbc_Driver_ce = NULL;
-zend_object_handlers pdbc_Driver_handlers;
+zend_class_entry *pdbc_driver_ce = NULL;
+zend_object_handlers pdbc_driver_handlers;
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_Driver_void, 0, 0, 0)
 ZEND_END_ARG_INFO();
@@ -43,12 +43,12 @@ const zend_function_entry pdbc_driver_methods[] = {
 	PHP_FE_END
 };
 
-void pdbc_define_Driver(TSRMLS_D)
+void pdbc_define_driver(TSRMLS_D)
 {
 	zend_class_entry ce;
 
 	INIT_CLASS_ENTRY(ce, CLASS_NAME_DRIVER, pdbc_driver_methods);
-	pdbc_Driver_ce = zend_register_internal_interface(&ce);
+	pdbc_driver_ce = zend_register_internal_interface(&ce);
 }
 
 /*

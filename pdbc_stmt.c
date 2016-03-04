@@ -20,8 +20,7 @@
 
 #include "php_pdbc.h"
 
-zend_class_entry *pdbc_Statement_ce = NULL;
-zend_object_handlers pdbc_Statement_handlers;
+zend_class_entry *pdbc_statement_ce = NULL;
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_Statement_void, 0, 0, 0)
 ZEND_END_ARG_INFO();
@@ -37,12 +36,12 @@ const zend_function_entry pdbc_statement_methods[] = {
 	PHP_FE_END
 };
 
-void pdbc_define_Statement(TSRMLS_D)
+void pdbc_define_statement(TSRMLS_D)
 {
 	zend_class_entry ce;
 
 	INIT_CLASS_ENTRY(ce, CLASS_NAME_STATEMENT, pdbc_statement_methods);
-	pdbc_Statement_ce = zend_register_internal_interface(&ce);
+	pdbc_statement_ce = zend_register_internal_interface(&ce);
 }
 
 /*
