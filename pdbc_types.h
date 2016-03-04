@@ -88,7 +88,7 @@ typedef struct {
 
 
 extern PHP_PDBC_API zend_class_entry *pdbc_connection_ce;
-extern PHP_PDBC_API zend_class_entry *pdbc_databasemetadata_ce;
+extern PHP_PDBC_API zend_class_entry *pdbc_database_meta_data_ce;
 extern PHP_PDBC_API zend_class_entry *pdbc_driver_ce;
 extern PHP_PDBC_API zend_class_entry *pdbc_resultet_ce;
 extern PHP_PDBC_API zend_class_entry *pdbc_statement_ce;
