@@ -70,9 +70,9 @@ typedef struct {
 	pdbc_conn_info_t *conn;
 } pdbc_handle_t;
 
-typedef zend_object *(*pdbc_driver_create_connection)(pdbc_handle_t *);
-typedef zend_object *(*pdbc_get_connection_instance)();
-typedef zend_object *(*pdbc_get_driver_instance)();
+typedef zval *(*pdbc_driver_create_connection)(pdbc_handle_t *);
+typedef zval *(*pdbc_get_connection_instance)();
+typedef zval *(*pdbc_get_driver_instance)();
 
 struct _pdbc_driver_t {
 	zend_string						*name;
