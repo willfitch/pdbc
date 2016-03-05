@@ -94,23 +94,14 @@ PDBC_METHOD(DriverManager, getConnection)
 	pdbc_driver_t *driver = NULL;
 	pdbc_conn_info_t *conn = NULL;
 	pdbc_handle_t *handle = NULL;
-	zend_object *zo;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S|SS", &url, &user, &password) == FAILURE) {
 		return;
 	}
 
-	if ((conn = pdbc_parse_url(url, error)) == NULL) {
+	if ((conn = pdbc_parse_url(url, user, password, error)) == NULL) {
 		throw_new_SqlException(error, 0);
 		return;
-	}
-
-	if (user && user->len > 0) {
-		conn->user = zend_string_dup(user, 0);
-	}
-
-	if (password && password->len > 0) {
-		conn->password = zend_string_dup(password, 0);
 	}
 
 	if ((driver = zend_hash_find_ptr(&drivers, conn->driver)) == NULL) {
@@ -118,15 +109,11 @@ PDBC_METHOD(DriverManager, getConnection)
 		pdbc_free_url(conn);
 		return;
 	}
-	
+
+	handle = (pdbc_handle_t *) emalloc(sizeof(pdbc_handle_t));
 	handle->conn = conn;
-	zo = driver->create_connection(handle);
 
-	if (!zo) {
-		RETURN_NULL();
-	}
-
-	ZVAL_OBJ(return_value, zo);
+	driver->create_connection(handle, return_value);
 }
 /* }}} */
 
@@ -145,7 +132,7 @@ PDBC_METHOD(DriverManager, getDriver)
 		RETURN_NULL();
 	}
 
-	ZVAL_OBJ(return_value, tmp->get_driver_instance());
+	tmp->get_driver_instance(return_value);
 }
 /* }}} */
 
@@ -164,7 +151,7 @@ PDBC_METHOD(DriverManager, getDrivers)
 }
 /* }}} */
 
-PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url, char *error)
+PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url, zend_string *user, zend_string *password, char *error)
 {
 	pdbc_conn_info_t *conn;
 	char *colon;
@@ -200,7 +187,7 @@ PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url, char *error)
 		return NULL;
 	}
 
-	conn->driver = zend_string_init(tmp, sizeof(tmp) - 1, 0);
+	conn->driver = zend_string_init(tmp, strlen(tmp), 0);
 	memset(tmp, 0, sizeof(tmp));
 
 	urlval = url->val + increment;
@@ -211,11 +198,18 @@ PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url, char *error)
 		urlval++;
 		colon = strchr(urlval, '/');
 		increment += (colon - urlval) + 1;
-		strncpy(tmp, urlval, (colon - urlval));
 
-		conn->user = zend_string_init(tmp, sizeof(tmp) - 1, 0);
-		memset(tmp, 0, sizeof(tmp));
-		urlval = url->val + increment;
+		/* Provided username supersedes
+		 */
+		if (user) {
+			conn->user = zend_string_dup(user, 0);
+		} else {
+			strncpy(tmp, urlval, (colon - urlval));
+
+			conn->user = zend_string_init(tmp, strlen(tmp), 0);
+			memset(tmp, 0, sizeof(tmp));
+			urlval = url->val + increment;
+		}
 	}
 
 	if (!(*colon == '/')) {
@@ -242,10 +236,17 @@ PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url, char *error)
 		/* We have a password
 		 */
 		increment += (colon - urlval) + 1;
-		strncpy(tmp, urlval, (colon - urlval));
 
-		conn->password = zend_string_init(tmp, sizeof(tmp) - 1, 0);
-		memset(tmp, 0, sizeof(tmp));
+		/* Provided password supersedes
+		 */
+		if (password) {
+			conn->password = zend_string_dup(password, 0);
+		} else {
+			strncpy(tmp, urlval, (colon - urlval));
+
+			conn->password = zend_string_init(tmp, strlen(tmp), 0);
+			memset(tmp, 0, sizeof(tmp));
+		}
 	}
 
 	if (!(colon = strchr(urlval, ':')) && !(colon = strchr(urlval, '/'))) {
@@ -263,7 +264,7 @@ PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url, char *error)
 		return NULL;
 	}
 
-	conn->host = zend_string_init(tmp, sizeof(tmp) - 1, 0);
+	conn->host = zend_string_init(tmp, strlen(tmp), 0);
 	memset(tmp, 0, sizeof(tmp));
 
 	if ((colon = strchr(urlval, ':'))) {
@@ -309,7 +310,7 @@ PHP_PDBC_API pdbc_conn_info_t *pdbc_parse_url(zend_string *url, char *error)
 		return NULL;
 	}
 
-	conn->database = zend_string_init(colon, sizeof(colon) - 1, 0);
+	conn->database = zend_string_init(colon, strlen(colon), 0);
 	return conn;
 }
 

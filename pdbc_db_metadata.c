@@ -56,18 +56,6 @@ void pdbc_define_database_meta_data(TSRMLS_D)
 	zend_class_entry ce;
 	INIT_CLASS_ENTRY(ce, CLASS_NAME_DATABASEMETADATA, pdbc_dbmetadata_methods);
 	pdbc_database_meta_data_ce = zend_register_internal_interface(&ce);
-	/*
-	zend_class_entry ce;
-
-	INIT_CLASS_ENTRY(ce, CLASS_NAME_DATABASEMETADATA, pdbc_dbmetadata_methods);
-	pdbc_database_meta_data_ce = zend_register_internal_class(&ce);
-	pdbc_Connection_ce->create_object = pdbc_dbmetadata_create_object;
-	
-	memcpy(&pdbc_dbmetadata_handlers, zend_get_std_object_handlers(), sizeof(pdbc_dbmetadata_handlers));
-	pdbc_dbmetadata_handlers.free_obj = pdbc_dbmetadata_free_object;
-	pdbc_dbmetadata_handlers.dtor_obj = pdbc_dbmetadata_destroy_object;
-	pdbc_dbmetadata_handlers.offset = XtOffsetOf(pdbc_dbmetadata_object_t, zo);
-	*/
 }
 
 /*
