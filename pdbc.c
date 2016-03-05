@@ -94,6 +94,7 @@ PDBC_METHOD(DriverManager, getConnection)
 	pdbc_driver_t *driver = NULL;
 	pdbc_conn_info_t *conn = NULL;
 	pdbc_handle_t *handle = NULL;
+	zend_object *zo;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S|SS", &url, &user, &password) == FAILURE) {
 		return;
@@ -119,7 +120,13 @@ PDBC_METHOD(DriverManager, getConnection)
 	}
 	
 	handle->conn = conn;
-	ZVAL_OBJ(return_value, driver->create_connection(handle));
+	zo = driver->create_connection(handle);
+
+	if (!zo) {
+		RETURN_NULL();
+	}
+
+	ZVAL_OBJ(return_value, zo);
 }
 /* }}} */
 
