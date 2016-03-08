@@ -353,7 +353,10 @@ PHP_PDBC_API void pdbc_deregister_driver(pdbc_driver_t *driver)
 
 PHP_PDBC_API void pdbc_free_handle(pdbc_handle_t *handle) 
 {
-	pdbc_free_url(handle->conn);
+	if (handle) {
+		pdbc_free_url(handle->conn);
+		efree(handle);
+	}
 }
 
 const zend_function_entry pdbc_driver_manager_methods[] = {

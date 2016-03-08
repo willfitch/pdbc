@@ -50,14 +50,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_Connection_setTransactionIsolation, 0, 0, 0)
 	ZEND_ARG_INFO(0, level)
 ZEND_END_ARG_INFO();
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_pdbc_Connection___construct, 0, 0, 1)
-	ZEND_ARG_INFO(0, url)
-	ZEND_ARG_INFO(0, user)
-	ZEND_ARG_INFO(0, password)
-ZEND_END_ARG_INFO();
-
 const zend_function_entry pdbc_connection_methods[] = {
-	PDBC_ABSTRACT_ME(Connection, __construct,				arginfo_pdbc_Connection___construct)
 	PDBC_ABSTRACT_ME(Connection, close,						arginfo_pdbc_Connection_void)
 	PDBC_ABSTRACT_ME(Connection, commit,					arginfo_pdbc_Connection_void)
 	PDBC_ABSTRACT_ME(Connection, createStatement,			arginfo_pdbc_Connection_void)
